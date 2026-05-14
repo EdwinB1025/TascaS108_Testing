@@ -2,115 +2,73 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once 'numberChecker.php';
 
+use PhpParser\Node\Expr\Cast\Object_;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+use function PHPSTORM_META\type;
+
 final class NumberCheckerTest extends TestCase
 {
-    public function par(): array
+    public function dataProviderEven(): array
     {
-        $int = [
-            'par 6' => [6]
+        $dataProvider = [
+            'par 6' => [6, true],
+            'impar 9' => [9, false],
+            'cero' => [0, true],
+            'bool' => [true, TypeError::class],
+            'array' => [[0, 2, 5], TypeError::class],
+            'string' => ["hola", TypeError::class],
+            'object' => [new stdClass(), TypeError::class]
+
         ];
-        return $int;
-    }
-    public function impar(): array
-    {
-        $int = [
-            'impar 9' => [9]
-        ];
-        return $int;
-    }
-    public function negativo(): array
-    {
-        $int = [
-            'negativo -4' => [-4]
-        ];
-        return $int;
-    }
-    public function positivo(): array
-    {
-        $int = [
-            'positivo 1' => [1]
-        ];
-        return $int;
-    }
-    public function cero(): array
-    {
-        $int = [
-            'cero' => [0]
-        ];
-        return $int;
+        return $dataProvider;
     }
 
-    public function string(): array
+    public function dataProviderPositive(): array
     {
-        $int = [
-            'string' => ['text']
+        $dataProvider = [
+            'positive 6' => [6, true],
+            'negative -9' => [-9, false],
+            'cero' => [0, true],
+            'bool' => [true, TypeError::class],
+            'array' => [[0, 2, 5], TypeError::class],
+            'string' => ["hola", TypeError::class],
+            'object' => [new stdClass(), TypeError::class]
+
         ];
-        return $int;
+        return $dataProvider;
     }
 
-    #[DataProvider('par')]
-    public static function testIsEvenEven(int $num): void
+    #[DataProvider('dataProviderEven')]
+
+    public function testIsEven(mixed $num, mixed $case): void
     {
+        $typeError = ["string", "array", "object", "NULL", "bool"];
+        if (in_array(gettype($num), $typeError, true)) {
+            $this->expectException($case);
+        }
         $numCheck = new NumberChecker($num);
         $testBool = $numCheck->isEven();
-        self::assertSame(true, $testBool);
+        if (gettype($num) === "integer") {
+            self::assertSame(true, $testBool);
+        }
     }
 
-    #[DataProvider('impar')]
-    public static function testIsEvenOdd(int $num): void
-    {
-        $numCheck = new NumberChecker($num);
-        $testBool = $numCheck->isEven();
-        self::assertSame(false, $testBool);
-    }
+    #[DataProvider('dataProviderPositive')]
 
-    #[DataProvider('cero')]
-    public static function testIsEvenZeroException(int $num): void
+    public function testIsPositive(mixed $num, mixed $case): void
     {
-        $numCheck = new NumberChecker($num);
-        $testBool = $numCheck->isEven();
-        self::assertSame(true, $testBool);
-    }
+        $typeError = ["string", "array", "object", "NULL", "bool"];
+        if (in_array(gettype($num), $typeError, true)) {
+            $this->expectException($case);
+        }
 
-    #[DataProvider('string')]
-    public function testIsEvenStringException(mixed $num): void
-    {
-        $this->expectException(TypeError::class);
-        $numCheck = new NumberChecker($num);
-        $numCheck->isEven();
-    }
-
-    #[DataProvider('positivo')]
-    public static function testIsPositive(int $num): void
-    {
         $numCheck = new NumberChecker($num);
         $testBool = $numCheck->isPositive();
-        self::assertSame(true, $testBool);
-    }
 
-    #[DataProvider('negativo')]
-    public static function testIsNegative(int $num): void
-    {
-        $numCheck = new NumberChecker($num);
-        $testBool = $numCheck->isPositive();
-        self::assertSame(false, $testBool);
-    }
-    #[DataProvider('cero')]
-    public static function testIsPositiveZeroException(int $num): void
-    {
-        $numCheck = new NumberChecker($num);
-        $testBool = $numCheck->isPositive();
-        self::assertSame(false, $testBool);
-    }
-
-    #[DataProvider('string')]
-    public function testIsPositiveStringException(mixed $num): void
-    {
-        $this->expectException(TypeError::class);
-        $numCheck = new NumberChecker($num);
-        $numCheck->isPositive();
+        if (gettype($num) === "integer") {
+            self::assertSame(true, $testBool);
+        }
     }
 }

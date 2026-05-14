@@ -8,9 +8,11 @@ class TestSpeedChecker extends TestCase
 {
     public function speedProvider(): array
     {
-        $data = [];
-        for ($i = 0; $i < 2; $i++) {
-            $num = (int)mt_rand(0, 150);
+        $data = [20, 30, 45, 70, 100, 101, 150];
+        $dataProvider = [];
+
+        for ($i = 0; $i < sizeof($data); $i++) {
+            $num = $data[$i];
             $case = match (true) {
                 $num < 30 => 'Molt lent',
                 $num  >= 30 && $num <= 60 => 'Velocitat adequada',
@@ -18,9 +20,9 @@ class TestSpeedChecker extends TestCase
                 $num  >= 81 && $num <= 100 => 'Excés moderat',
                 $num > 100 => 'Excés greu'
             };
-            $data['caso numero' . $i] = [$num, $case];
+            $dataProvider['caso numero' . $i] = [$num, $case];
         }
-        return $data;
+        return $dataProvider;
     }
 
     #[DataProvider('speedProvider')]
